@@ -33,14 +33,14 @@
 		&& \sum_{i=0}^{n-1}x_{i,j}		&&= 1 			&&\quad \forall j \in \zeroton \label{eq:numtakenonce} \\		
 		& && \sum_{i=0}^{n-1}x_{j,i}		&&= 1	 		&&\quad \forall j \in \zeroton \label{eq:xonenum} \\
 		& && b_{i,j}  					&&= 1 - x_{(j - i \mod n),j}	&&\quad \forall i,j \in \zeroton \label{eq:bassignment} \\
-		& && \sum_{i=0}^{n-1}b_{j,i}		&&\geq n-1 		&&\quad \forall j \in \zeroton \label{eq:bsum} \\
+		& && \sum_{i=0}^{n-1}b_{j,i}		&&= n-1 		&&\quad \forall j \in \zeroton \label{eq:bsum} \\
 		& && x_{0,0}					&&= 1			&& \label{eq:symbreaking}\\
 		& && x_{i,j} \in \{0,1\} 		&& 				&&\quad \forall i,j \in \zeroton \label{eq:binary}
 	\end{align}
 	
 	The basic idea is to create a one-hot encoding for the investors($x$) initial-seat (in our case an investor can sit on place $0$ to $n$)
 	In the \autoref{eq:numtakenonce} it is ensured that each place is assigned only once per investor. In the \autoref{eq:xonenum} the one-hot encoding is ensured, so investor $1$ can only obtain one seat. 
-	The \autoref{eq:bassignment} introduces an expression $b$ which value ranges from $0$ to $1$. It is used to determine if the place matches the investor on the table. For example if the investor 3 sits on place 3 ($x_{3,3} = 1$) the value of $b_{0,3}$ becomes $0$. The first index is a "round" counter, so if the table gets turned once, the index increases. In \autoref{eq:bsum} the sum of all non-matching investors is summed up and it has to be greather than or equal to $n-1$, so only at maximum 1 investor is happy.
+	The \autoref{eq:bassignment} introduces an expression $b$ which value ranges from $0$ to $1$. It is used to determine if the place matches the investor on the table. For example if the investor 3 sits on place 3 ($x_{3,3} = 1$) the value of $b_{0,3}$ becomes $0$. The first index is a "round" counter, so if the table gets turned once, the index increases. In \autoref{eq:bsum} the sum of all non-matching investors is summed up and it has to be or equal to $n-1$, so only 1 investor is happy.
 	The last constraint, \autoref{eq:symbreaking} is just a symmetry breaking constraint, it strengthens the formulation so the solution $0123456$ is equal to $6012345$ (shifted by $1$).
 	
 \end{document}

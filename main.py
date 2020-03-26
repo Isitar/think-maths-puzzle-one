@@ -1,4 +1,4 @@
-import cvxpy as cp
+from mip import Model, BINARY, xsum, OptimizationStatus
 
 # terminal colors
 black = lambda text: '\033[0;30m' + text + '\033[0m'
@@ -11,49 +11,47 @@ cyan = lambda text: '\033[0;36m' + text + '\033[0m'
 white = lambda text: '\033[0;37m' + text + '\033[0m'
 
 # actual problem
+model = Model('thinkmathone')
+model.verbose = 0
 n = 7
 x = []
 for i in range(0, n):
     x.append([])
     for j in range(0, n):
-        x[i].append(cp.Variable(1, boolean=True))
+        x[i].append(model.add_var(var_type=BINARY, name=f'x_${i}_${j}'))
 
 b = []
 for i in range(0, n):
     b.append([])
     for j in range(0, n):
-        b[i].append(cp.Variable(1, boolean=True))
+        b[i].append(model.add_var(var_type=BINARY, name=f'b_${i}_${j}'))
 
 for i in range(0, n):
     for j in range(0, n):
         b[i][j] = 1 - x[(j - i) % n][j]
 
-objective = cp.Minimize(0)
-constraints = []
 
 # x can only be one of 0..n
 for i in range(0, n):
-    constraints.append(1 == cp.sum(x[i]))
+    model += 1 == xsum(x[i][j] for j in range(n))
 
 # each x is different
 for i in range(0, n):
     expr = 0 + x[0][i]
     for j in range(1, n):
         expr += x[j][i]
-    constraints.append(1 == expr)
+    model += 1 == expr
 
+# only one can be satisfied
 for i in range(0, n):
-    constraints.append(cp.sum(b[i]) >= n - 1)
+    model += xsum(b[i][j] for j in range(n)) == n - 1
 
 # symmetry breaking constraint
-constraints.append(x[0][0] == 1)
-
+model += x[0][0] == 1
 cntSolutions = 0
 while True:
-    prob = cp.Problem(objective, constraints)
-    result = prob.solve()
-
-    if result is None:
+    result = model.optimize()
+    if result != OptimizationStatus.OPTIMAL:
         # no more solutions are found
         break
 
@@ -62,7 +60,7 @@ while True:
     y = []
     for i in range(0, n):
         for j in range(0, n):
-            if x[i][j].value >= 0.9:
+            if x[i][j].xi(0) >= 0.9:
                 print(f'x[{i}][{j}]')
                 y.append(j)
 
@@ -81,10 +79,12 @@ while True:
                 print(val, end='')
         print()
 
+    print()
+    print()
     # exclude current solution
-    expr = 0 + x[0][y[0]]
+    tmp = 0 + x[0][y[0]]
     for i in range(1, n):
-        expr += x[i][y[i]]
-    constraints.append(expr <= n - 1)
+        tmp += x[i][y[i]]
+    model += tmp <= n - 1
 
 print(f'Total solutions: {cntSolutions}')
