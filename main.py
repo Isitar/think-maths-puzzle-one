@@ -48,7 +48,7 @@ for i in range(0, n):
 # symmetry breaking constraint
 constraints.append(x[0][0] == 1)
 
-
+cntSolutions = 0
 while True:
     prob = cp.Problem(objective, constraints)
     result = prob.solve()
@@ -57,7 +57,8 @@ while True:
         # no more solutions are found
         break
 
-    print(result)
+    cntSolutions += 1
+    print('Seating:')
     y = []
     for i in range(0, n):
         for j in range(0, n):
@@ -66,6 +67,7 @@ while True:
                 y.append(j)
 
     # print out all permutations
+    print('Permutations:')
     for i in range(0, n):
         print(f'permutation {i}:')
         for j in range(0, n):
@@ -84,3 +86,5 @@ while True:
     for i in range(1, n):
         expr += x[i][y[i]]
     constraints.append(expr <= n - 1)
+
+print(f'Total solutions: {cntSolutions}')
